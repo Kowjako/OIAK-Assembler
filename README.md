@@ -1,5 +1,4 @@
-# Lab1_OiAK
-# Cel programu
+# Laboratorium 1 - Cel programu
 Program służy do szyfrowania tekstu metodą ROT13. Polskie litery pozostają bez zmian
 # Wymagania
 Do uruchomienia programu jest potrzebny GNU Assembler(GAS) oraz linker    
