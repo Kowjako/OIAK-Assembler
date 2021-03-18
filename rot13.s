@@ -52,11 +52,9 @@ ja not_big_letter       		#jezeli wieksza od 90 to moze byc mala litera
 
 not_big_letter:
 
-cmpb $97, input(%ebp)			#sprawdzanie w porownaniu do a
-jb not_letter           		#jezeli mniejsza niz 97 to nie litera
 
 cmpb $122, input(%ebp)			#sprawdzanie w porownaniu do z
-jb not_letter           		#jezeli wieksza niz 122 to nie litera
+ja not_letter           		#jezeli wieksza niz 122 to nie litera
 
 addb $0x0D, input(%ebp)   	    #dodanie 13 w kodzie ASCII (zalozenia rot13)
 cmpb $90, input(%ebp)	      	#sprawdzenie w porownaniu do 90 (koniec duzych liter)
