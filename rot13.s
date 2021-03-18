@@ -35,13 +35,42 @@ mov $input, %ecx
 mov $input_length, %edx
 int $SYSCALL
 
-mov %eax, %edi  #SYSREAD zwraca wartosc gdzie skonczylismy pisac wiec zapisujemy ja w rejestrze
+mov %eax, %edi  #SYSREAD zwraca wartosc gdzie skonczylismy pisac wiec zapisujemy ja w rejestrze edi
 dec %edi 	   	#po SYSREAD jest znak nowej linij wiec usuwamy go poprzez dekrementacje
 xor %ebp, %ebp  #zerowanie rejestru ebp jezeli zawartosc jednakowa
 
 petla:
-addb $0x0D, input(%ebp)   #dostep do kazdej litery dodanie 13 w kodzie ASCII
+
+cmpl $0, %edi					#sprawdzanie czy dlugosci wynosi 0
+jz done 						#jezeli 0 skok w koniec
+
+cmpb $65, input(%ebp)          	#sprawdzanie w porownaniu do A
+jb not_letter           		#jezeli mneijsza niz 65 to nie litera
+
+cmpb $90, input(%ebp)			#sprawdaznie w porownaniu do Z
+ja not_big_letter       		#jezeli wieksza od 90 to moze byc mala litera
+
+not_big_letter:
+
+cmpb $97, input(%ebp)			#sprawdzanie w porownaniu do a
+jb not_letter           		#jezeli mniejsza niz 97 to nie litera
+
+cmpb $122, input(%ebp)			#sprawdzanie w porownaniu do z
+jb not_letter           		#jezeli wieksza niz 122 to nie litera
+
+addb $0x0D, input(%ebp)   	    #dodanie 13 w kodzie ASCII (zalozenia rot13)
+cmpb $90, input(%ebp)	      	#sprawdzenie w porownaniu do 90 (koniec duzych liter)
+jbe no_correction   			#jezeli wartosc mniejsza od 90
+cmpb $122, input(%ebp)
+jbe no_correction				#jezeli wartosc mniejsza od 122
+
+subb $26, input(%ebp)			#rowniez uwzgledniana pozyczka
+
+no_correction:
+				 
+not_letter:
 inc %ebp				 #inkrementacja jako przejscie do nastepnej pozycji w input
+
 cmp %edi, %ebp			 #sprawdzanie czy koniec petli
 jl petla				 #skok jezeli nie koniec petli
 
@@ -51,6 +80,7 @@ mov $STDOUT, %ebx
 mov $input, %ecx
 int $SYSCALL
 
+done:
 mov $SYSEXIT32, %eax
 mov $SUCCESSEDEXIT, %ebx
 int $SYSCALL
