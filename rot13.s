@@ -35,6 +35,22 @@ mov $input, %ecx
 mov $input_length, %edx
 int $SYSCALL
 
+mov %eax, %edi  #SYSREAD zwraca wartosc gdzie skonczylismy pisac wiec zapisujemy ja w rejestrze
+dec %edi 	   	#po SYSREAD jest znak nowej linij wiec usuwamy go poprzez dekrementacje
+xor %ebp, %ebp  #zerowanie rejestru ebp jezeli zawartosc jednakowa
+
+petla:
+addb $0x0D, input(%ebp)   #dostep do kazdej litery dodanie 13 w kodzie ASCII
+inc %ebp				 #inkrementacja jako przejscie do nastepnej pozycji w input
+cmp %edi, %ebp			 #sprawdzanie czy koniec petli
+jl petla				 #skok jezeli nie koniec petli
+
+mov %eax, %edx			#pamietamy ze w eax pozostala dlugosc wczytanego tekstu po SYSREAD
+mov $SYSWRITE, %eax
+mov $STDOUT, %ebx
+mov $input, %ecx
+int $SYSCALL
+
 mov $SYSEXIT32, %eax
 mov $SUCCESSEDEXIT, %ebx
 int $SYSCALL
