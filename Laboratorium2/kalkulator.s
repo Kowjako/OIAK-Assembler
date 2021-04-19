@@ -1,5 +1,26 @@
 .global main
 
+.macro endl
+    print_s endline
+.endm
+
+.macro print_s string
+    mov $0, %eax
+    mov $format_s, %edi
+    mov	$\string, %esi
+    call printf
+.endm
+
+.macro print_d double
+    subq $8, %rsp
+    mov $1, %eax
+    mov $format_d, %edi
+    movsd \double, %xmm0
+    call printf
+    addq $8, %rsp
+    endl
+.endm
+
 .macro add_d			#makro do wykonania dodawania FPU
    fldl first_d
    faddl second_d
@@ -41,3 +62,4 @@
     control_word: .short 0x037f #standardowa wartosc z instrukcji
     endline: .ascii "\n\0"
 .text
+main:
