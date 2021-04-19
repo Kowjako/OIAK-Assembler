@@ -59,6 +59,10 @@
     fdivl second_d
 .endm
 
+.macro take_d double	#makro do pobierania wyniku po operacji FPU
+    fstl \double
+.endm
+
 .data
     msg1: .ascii "Podaj pierwsza liczbe\n\0"
     msg2: .ascii "Podaj druga liczbe\n\0"
@@ -81,3 +85,16 @@
     endline: .ascii "\n\0"
 .text
 main:
+	finit				#inicjalizacja jednostki FPU
+
+    print_s msg1
+    scan_d first_d
+
+    print_s msg2
+    scan_d second_d
+
+    print_s menu
+    scan_i operation
+
+    print_s control
+    scan_i control_operation
