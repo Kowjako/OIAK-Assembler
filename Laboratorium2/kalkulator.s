@@ -98,3 +98,28 @@ main:
 
     print_s control
     scan_i control_operation
+
+    cmpb $1, operation
+    je add
+    cmpb $2, operation
+    je sub
+    cmpb $3, operation
+    je div
+    cmpb $4, operation
+    je mult
+add:
+    add_d
+    jmp end
+sub:
+    sub_d
+    jmp end
+div:
+    div_d
+    jmp end
+mult:
+    mult_d
+    jmp end
+end:
+    take_d output_d
+    print_s output
+    print_d output_d
