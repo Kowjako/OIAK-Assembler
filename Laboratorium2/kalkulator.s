@@ -21,6 +21,24 @@
     endl
 .endm
 
+.macro scan_d register
+    subq $8, %rsp
+    mov $0, %eax
+    mov $format_d, %edi
+    mov $\register, %esi
+    call scanf
+    addq $8, %rsp
+.endm
+
+.macro scan_i register
+   subq $8, %rsp
+   mov $0, %eax
+   mov $format_i, %edi
+   mov $\register, %esi
+   call scanf
+   addq $8, %rsp
+.endm
+
 .macro add_d			#makro do wykonania dodawania FPU
    fldl first_d
    faddl second_d
