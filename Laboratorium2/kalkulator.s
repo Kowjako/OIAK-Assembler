@@ -1,5 +1,11 @@
 .global main
 
+cut1: .short 0x200 #najblizsze
+cut2: .short 0x600 #dol
+cut3: .short 0xA00 #gora
+cut4: .short 0xE00 #obciecie
+
+
 .macro endl
     print_s endline
 .endm
@@ -61,6 +67,22 @@
 
 .macro take_d double	#makro do pobierania wyniku po operacji FPU
     fstl \double
+.endm
+
+.macro set_round_cut    #zaokraglanie przez obciecie
+    fldcw cut4
+.endm
+
+.macro set_round_up		#zaokraglenie do +inf
+    fldcw cut3
+.endm
+
+.macro set_round_down	#zaokraglenie do -inf
+    fldcw cut2
+.endm
+
+.macro set_round_nearest	#zaokraglenie do najblizszej
+    fldcw cut1
 .endm
 
 .data
