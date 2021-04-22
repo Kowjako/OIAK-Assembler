@@ -5,7 +5,6 @@ cut2: .short 0x600 #dol
 cut3: .short 0xA00 #gora
 cut4: .short 0xE00 #obciecie
 
-
 .macro endl
     print_s endline
 .endm
@@ -24,7 +23,6 @@ cut4: .short 0xE00 #obciecie
     movsd \double, %xmm0
     call printf
     addq $8, %rsp
-    endl
 .endm
 
 .macro scan_d register
@@ -90,7 +88,7 @@ cut4: .short 0xE00 #obciecie
     msg2: .ascii "Podaj druga liczbe\n\0"
     menu: .ascii "Wybierz typ operacji\n1. Dodawanie\n2. Odejmowanie\n3. Dzielenie\n4. Mnozenie\n\0"
     control: .ascii "Typ zaokraglania\n1. Do zera\n2. W gore\n3. W dol\n4. Do najblizszej\n\0"
-    output: .ascii "Your output\n\0"
+    output: .ascii "Wynik\n\0"
 
     first_d: .double 1.0
     second_d: .double 2.0
@@ -121,6 +119,29 @@ main:
     print_s control
     scan_i control_operation
 
+    cmpb $1, control_operation
+    je cut
+    cmpb $2, control_operation
+    je up
+    cmpb $3, control_operation
+    je down
+    cmpb $4, control_operation
+    je nearest
+
+cut:
+    set_round_cut
+    je rounding_set
+up:
+    set_round_up
+    je rounding_set
+down:
+    set_round_down
+    je rounding_set
+nearest:
+    set_round_nearest
+    je rounding_set
+
+rounding_set:
     cmpb $1, operation
     je add
     cmpb $2, operation
@@ -145,3 +166,4 @@ end:
     take_d output_d
     print_s output
     print_d output_d
+    endl
