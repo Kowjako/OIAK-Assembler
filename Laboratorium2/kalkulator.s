@@ -101,7 +101,6 @@ cut4: .short 0xE00 #obciecie
     format_s: .ascii "%s\0"		#format wypisywania string
     format_i: .ascii "%i\0"		#format wypisywania calkowitej liczby
 
-    control_word: .short 0x037f #standardowa wartosc z instrukcji
     endline: .ascii "\n\0"
 .text
 main:
