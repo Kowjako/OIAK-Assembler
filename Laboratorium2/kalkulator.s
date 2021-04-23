@@ -85,7 +85,7 @@ cut4: .short 0xC3F #obciecie
     operation: .int 0			#zmienna dla przechowywania wybranej operacji
     control_operation: .int 0	#zmienna dla przechowywania wybranego zaokraglania
 
-    format_d: .ascii "%f\0"	    #format wypisywania double
+    format_d: .ascii "%f\0"	    #format wypisywania float
     format_i: .ascii "%i\0"		#format wypisywania calkowitej liczby
 
 
