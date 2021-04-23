@@ -1,7 +1,7 @@
 # Laboratorium 2 - Cel programu
 Program demonstruje kalkulator liczb zmiennoprzecinkowych za pomocą FPU
 # Wymagania
-Do uruchomienia programu jest potrzebny kompilator GCC  
+Do uruchomienia programu jest potrzebny kompilator GAS oraz linker, żeby zainstalować:  
 ``sudo apt-get install build-essential``
 # Uruchomienie
 Żeby uruchomić program należy:  
