@@ -1,20 +1,34 @@
 .data
 
-tekst: .ascii "CAFF1234BBCCFFAA11111111\0" #.space 8 = 16*4 = 64
-liczba: .space 12 #bo .space 4 bajty wystarczy do 8 znakow 0xCAFF1234
+msg1: .ascii "Podaj pierwsza liczbe\n\0"
+msg2: .ascii "Podaj druga liczbe\n\0"
+
+liczba1: .space 200 #dopuszczalne 200 znakow max #"CAFF1234BBCCFFAA11111111\0" #.space 8 = 16*4 = 64
+liczba: .space 100 #bo .space 4 bajty wystarczy do 8 znakow 0xCAFF1234
+
+format_s: .ascii "%s\0"
 format_h: .ascii "%x\0"
 newline: .ascii "\n"
+
+outputIterator: .int 0
 
 .text
 
 .global main
 
 main:
+	pushl $msg1
+	call printf		#prosimy o podanie 1 liczby
+
+	pushl $liczba1
+	pushl $format_s
+	call scanf		#wczytujemy liczbe do liczba1
+
 	movl $0, %ecx	#rejestr indeksujacy nasza liczbe koncowa
 	movl $0, %ebx	#rejestr indeksujacy kolejne symbole tekstu
 st:
 	movl $0, %eax
-	movb tekst(,%ebx,1), %al #pobieramy symbol
+	movb liczba1(,%ebx,1), %al #pobieramy symbol
 	incl %ebx	#przechodzimy do kolejnego symbolu
 	cmpb $0x30, %al #jezeli wartosc ASCII jest mniejsza niz 30 to znaczy mniejsze od symbolu '0'
 	jb end
@@ -40,23 +54,26 @@ end:
 
 finish:
 
-	#mov $0, %eax
-	#movl liczba(,%eax,4), %ebx
-	#push %edx
-	#push %edx
-	#pushl %ebx
-	#pushl $format_h
-	#call printf
+	mov $0, %eax
+nextlong:
+	cmp $3, %eax
+	je endprogram
+	movl liczba(,%eax,4), %ebx
+	push %eax	#odkladamy na stos zeby nie zepsuc wartosc
+	push %edx	#rezerwajca miejsca zeby wypisac long
+	push %edx
+	pushl %ebx	#push liczby do wykorzystania printf
+	pushl $format_h	#push formatu
+	call printf
+	pop %eax	#pobieramy odlozone wartosci ze stosu
+	pop %eax
+	pop %eax
+	pop %eax
+	pop %eax	#pobiearmy wartosc ze stosu eax
+	inc %eax
+	jmp nextlong
 
-	#mov $1, %eax
-	#movl liczba(,%eax,4), %ebx
-	#push %edx
-	#push %edx
-	#pushl %ebx
-	#pushl $format_h
-	#call printf
-
-
+endprogram:
 	pushl $newline
 	call printf
 	call exit
