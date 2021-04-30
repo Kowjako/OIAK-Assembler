@@ -15,6 +15,7 @@ main:
 st:
 	movl $0, %eax
 	movb tekst(,%ebx,1), %al #pobieramy symbol
+	incl %ebx	#przechodzimy do kolejnego symbolu
 	cmpb $0x30, %al #jezeli wartosc ASCII jest mniejsza niz 30 to znaczy mniejsze od symbolu '0'
 	jb end
 	subb $0x30, %al #odejmujemy 30 aby dostac liczbe z kodu ASCII
@@ -24,12 +25,14 @@ st:
 cyfra:
 	shll $4, liczba(,%ecx,4) #przesuwamy w lewo o 4 pozycje zeby umiescic jeden symbol tekstowy
 	addl %eax, liczba(,%ecx,4) #wstawiamy symbol tekstowy
-	incl %ebx	#przechodzimy do kolejnego symbolu tekstowego
 	cmpl $8, %ebx	#czy wczytane pierwsze 4 bajty, bo jezeli mamy 8 symboli HEX i dwa symbole HEX to bajt , to 8 symboli daje 4 bajty
+	je end
+	cmpl $16, %ebx
+	je end
+	cmpl $24, %ebx
 	je end
 	jmp st
 end:
-	#movl $0, %ebx
 	cmpl $2, %ecx	#sprawdzamy czy wpisalismy 3 longi (0,1,2)
 	je finish
 	incl %ecx  #zwiekszamy indeks rejestru indeksujacego liczbe
