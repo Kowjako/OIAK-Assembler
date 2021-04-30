@@ -26,10 +26,16 @@ main:
 
 	movl $0, %ecx	#rejestr indeksujacy nasza liczbe koncowa
 	movl $0, %ebx	#rejestr indeksujacy kolejne symbole tekstu
+
 st:
 	movl $0, %eax
 	movb liczba1(,%ebx,1), %al #pobieramy symbol
+
+	cmpb $0x0A, %al #sprawdzamy czy koniec linii (ascii 10 - znak konca linii)
+	jl finish #jezeli rowna sie to skok
+
 	incl %ebx	#przechodzimy do kolejnego symbolu
+
 	cmpb $0x30, %al #jezeli wartosc ASCII jest mniejsza niz 30 to znaczy mniejsze od symbolu '0'
 	jb end
 	subb $0x30, %al #odejmujemy 30 aby dostac liczbe z kodu ASCII
@@ -39,24 +45,38 @@ st:
 cyfra:
 	shll $4, liczba(,%ecx,4) #przesuwamy w lewo o 4 pozycje zeby umiescic jeden symbol tekstowy
 	addl %eax, liczba(,%ecx,4) #wstawiamy symbol tekstowy
-	cmpl $8, %ebx	#czy wczytane pierwsze 4 bajty, bo jezeli mamy 8 symboli HEX i dwa symbole HEX to bajt , to 8 symboli daje 4 bajty
+	
+
+	movl $0, %edx #wyzerwoanie reszty
+	mov %ebx, %eax	#zapisujemy ebx jako dzielnik w eax w ebx ilosc symboli wczytanych
+	mov $8, %esi	# dzielna w ebp dzielmy razy 8 aby wiedziec ile longow wczytalismy
+	div %esi	#dzielimy reszta w edx
+	cmp $0, %edx	#jezeli reszta znaczy wczytano caly long
 	je end
-	cmpl $16, %ebx
-	je end
-	cmpl $24, %ebx
-	je end
+
 	jmp st
 end:
-	cmpl $2, %ecx	#sprawdzamy czy wpisalismy 3 longi (0,1,2)
+	cmpl $100, %ecx	#sprawdzamy czy wpisalismy 100 longow bo 200 znakow ascii HEX to 100 long)
 	je finish
+
+	cmpb $0x0a, liczba1(,%ebx,1) #jezeli symbol po 8 kolejnych jest spacja nie zwiekszamy ilosc longow (outputIterator)
+	jl finish
+
+	add $1, outputIterator #iterator pokazuje ile liczb wczytalismy calkowicie
 	incl %ecx  #zwiekszamy indeks rejestru indeksujacego liczbe
 	jmp st #skok do powtorzenia
 
 finish:
 
 	mov $0, %eax
+
+	cmp $0, outputIterator	#jezeli wpisano mniej niz 8 znakow to trzeba zwiekszyc o 1 ilosc liczb do wypisania
+	je addIterator
+
+	add $1, outputIterator	#jezeli kolejny symbol po 8 symbolach nie jest spacja to znaczy jeszcze jeden long
+
 nextlong:
-	cmp $3, %eax
+	cmp outputIterator, %eax
 	je endprogram
 	movl liczba(,%eax,4), %ebx
 	push %eax	#odkladamy na stos zeby nie zepsuc wartosc
@@ -77,3 +97,7 @@ endprogram:
 	pushl $newline
 	call printf
 	call exit
+
+addIterator:
+	add $1, outputIterator
+	jmp nextlong
