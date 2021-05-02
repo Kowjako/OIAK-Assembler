@@ -38,6 +38,14 @@ firstNum:
 	incl %ebx	#przechodzimy do kolejnego symbolu
 	cmpb $0x30, %al #jezeli wartosc ASCII jest mniejsza niz 30 to znaczy mniejsze od symbolu '0'
 	jb end
+
+	#sprawdezanie malych liter#
+	cmpb $0x46, %al
+	jbe duze
+	cmpb $0x66, %al
+	jbe malalitera
+
+duze:
 	subb $0x30, %al #odejmujemy 30 aby dostac liczbe z kodu ASCII
 	cmpb $0x0A, %al #jezeli mneijsza niz 10 to jest liczba
 	jb cyfra
@@ -87,6 +95,14 @@ secondNum:
 	incl %ebx	#przechodzimy do kolejnego symbolu
 	cmpb $0x30, %al #jezeli wartosc ASCII jest mniejsza niz 30 to znaczy mniejsze od symbolu '0'
 	jb end2
+
+	#sprawdezanie malych liter#
+	cmpb $0x46, %al
+	jbe duze2
+	cmpb $0x66, %al
+	jbe malalitera2
+
+duze2:	
 	subb $0x30, %al #odejmujemy 30 aby dostac liczbe z kodu ASCII
 	cmpb $0x0A, %al #jezeli mneijsza niz 10 to jest liczba
 	jb cyfra2
@@ -204,3 +220,17 @@ addIterator2:
 	mov %ebx, length2
 	add $1, outputIterator2
 	jmp multiply
+
+malalitera:
+	subb $0x50, %al
+	cmpb $0x0A, %al
+	jb cyfra
+	subb $0x07, %al
+	jmp cyfra
+
+malalitera2:
+	subb $0x50, %al
+	cmpb $0x0A, %al
+	jb cyfra2
+	subb $0x07, %al
+	jmp cyfra2
