@@ -129,7 +129,7 @@ outerLoop:
 	inc %edi 
 	pop %esi #licznik outerLoop
 	cmp $0,%esi 
-	jz endprogram 
+	jz showresult 
 	dec %esi 
 	movl liczba1(,%esi, 4), %eax #wpisujemy aktualny fragment luczby
 	push %esi #licznik na stos
@@ -166,32 +166,15 @@ overflow2:
 	jmp back2 
 
 
+#Wypisanie wyniku#
+showresult:
+	decl %edi
+	mov %edi, %eax
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#Wypisanie liczby (poki nie uzywam)#
-nextlong:
-	cmp outputIterator1, %eax
+nextresult:
+	cmp $-1, %eax
 	je endprogram
-	movl liczba1(,%eax,4), %ebx
+	movl result(,%eax,4), %ebx
 	push %eax	#odkladamy na stos zeby nie zepsuc wartosc
 	push %edx	#rezerwajca miejsca zeby wypisac long
 	push %edx
@@ -203,8 +186,8 @@ nextlong:
 	pop %eax
 	pop %eax
 	pop %eax	#pobiearmy wartosc ze stosu eax
-	inc %eax
-	jmp nextlong
+	dec %eax
+	jmp nextresult
 
 
 endprogram:
