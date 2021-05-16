@@ -14,6 +14,8 @@
 
 typedef unsigned char byte;
 
+unsigned long encoder(unsigned long n, long length); //funkcja asemblera
+
 int main()
 {
     char filelocation[100];
@@ -48,8 +50,6 @@ int main()
             fseek(image, WIDTH_OFFSET, SEEK_SET);
             fread(&width, 4, 1, image);
 
-            printf("%d\n", width);
-
             fseek(image, HEIGHT_OFFSET, SEEK_SET);
             fread(&height, 4, 1, image);
 
@@ -61,9 +61,6 @@ int main()
             int paddedRowSize = (int)(4 * (int)(((float)(width) / 4.0f) + 1))*bytesPerPixel;
             int unpaddedRowSize = width*bytesPerPixel;
 
-            printf("%d \n", height);
-            printf("%d", width);
-
             int totalSize = unpaddedRowSize*height;
 
             byte* pixels = (byte*)malloc(totalSize);
@@ -73,6 +70,11 @@ int main()
                 fread(currentRowPointer, 1, unpaddedRowSize, image);
                 currentRowPointer -= unpaddedRowSize;
             }
+
+            printf("Ilosc bajtow: %d \n", height*unpaddedRowSize);
+
+            //Steganografia//
+            encoder(pixels,height*unpaddedRowSize);
 
             break;
         case 2:
