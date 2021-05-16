@@ -1,14 +1,27 @@
 #include <stdio.h>
+#include <math.h>
+#include <stdlib.h>
 
+#define DATA_OFFSET_OFFSET 0x000A //wskazuje gdzie sie zaczynaja pixele
+#define WIDTH_OFFSET 0x0012  //adres szerokosci w naglowku bmp
+#define HEIGHT_OFFSET 0x0016    //adres wysokosci w naglowku bmp
+#define BITS_PER_PIXEL_OFFSET 0x001C    //bitow na pixel z naglowku bmp
+#define HEADER_SIZE 14  
+#define INFO_HEADER_SIZE 40
+#define NO_COMPRESION 0
+#define MAX_NUMBER_OF_COLORS 0
+#define ALL_COLORS_REQUIRED 0
 
+typedef unsigned char byte;
 
 int main()
 {
-	char filelocation[100];
-	char message[256];
-	char temp;
+    char filelocation[100];
+    char message[256];
+    char temp;
+    
 
-	int operation;
+    int operation, width, height;
 
     printf("Podaj nazwę pliku: ");
     scanf("%s", filelocation);
@@ -19,21 +32,52 @@ int main()
     scanf("%d", &operation);
 
     switch(operation) {
-    	case 1:
-    		printf("Podaj zdanie do szyfrowania: ");
-    		scanf("%c", &temp);
-    		scanf("%[^\n]", message);
-			printf("Potwierdzenie danych: \n");
-  			printf("Lokalizacja pliku -> %s\n", filelocation);
-    		printf("Zdanie do kodowania -> %s\n", message);
-    		//algorytm szyfrowania
+        case 1:
+            printf("Podaj zdanie do szyfrowania: ");
+            scanf("%c", &temp);
+            scanf("%[^\n]", message);
+            printf("Potwierdzenie danych: \n");
+            printf("Lokalizacja pliku -> %s\n", filelocation);
+            printf("Zdanie do kodowania -> %s\n", message);
 
-    		FILE *image = fopen(filelocation,"rb");
-    		
-    		break;
-    	case 2:
-    		
-    		break;
+            FILE *image = fopen(filelocation,"rb");
+            int dataOffset;
+            fseek(image, DATA_OFFSET_OFFSET, SEEK_SET);
+            fread(&dataOffset, 4, 1, image);
+
+            fseek(image, WIDTH_OFFSET, SEEK_SET);
+            fread(&width, 4, 1, image);
+
+            printf("%d\n", width);
+
+            fseek(image, HEIGHT_OFFSET, SEEK_SET);
+            fread(&height, 4, 1, image);
+
+            short bitsPerPixel;
+            fseek(image, BITS_PER_PIXEL_OFFSET, SEEK_SET);
+            fread(&bitsPerPixel, 2, 1, image);
+
+            int bytesPerPixel = ((int)bitsPerPixel) / 8;
+            int paddedRowSize = (int)(4 * (int)(((float)(width) / 4.0f) + 1))*bytesPerPixel;
+            int unpaddedRowSize = width*bytesPerPixel;
+
+            printf("%d \n", height);
+            printf("%d", width);
+
+            int totalSize = unpaddedRowSize*height;
+
+            byte* pixels = (byte*)malloc(totalSize);
+            byte* currentRowPointer = pixels + (height-1)*unpaddedRowSize;  //wskaznik na ostatni wiersz naszej tablicy pixeli
+            for(int i=0;i<height;i++) {
+                fseek(image, dataOffset+(i*paddedRowSize), SEEK_SET);
+                fread(currentRowPointer, 1, unpaddedRowSize, image);
+                currentRowPointer -= unpaddedRowSize;
+            }
+
+            break;
+        case 2:
+            
+            break;
     }
     return 0;
 }
