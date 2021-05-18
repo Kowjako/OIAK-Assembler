@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <math.h>
 #include <stdlib.h>
+#include <string.h>
 
 #define DATA_OFFSET_OFFSET 0x000A //wskazuje gdzie sie zaczynaja pixele
 #define WIDTH_OFFSET 0x0012  //adres szerokosci w naglowku bmp
@@ -14,7 +15,7 @@
 
 typedef unsigned char byte;
 
-unsigned long encoder(unsigned long n, long length); //funkcja asemblera
+unsigned long encoder(unsigned long n, long length, unsigned long msg, long msglength); //funkcja asemblera
 
 int main()
 {
@@ -70,11 +71,10 @@ int main()
                 fread(currentRowPointer, 1, unpaddedRowSize, image);
                 currentRowPointer -= unpaddedRowSize;
             }
-
+ 
             printf("Ilosc bajtow: %d \n", height*unpaddedRowSize);
-
             //Steganografia//
-            encoder(pixels,height*unpaddedRowSize);
+            encoder(pixels,height*unpaddedRowSize, &message, strlen(message));
 
             break;
         case 2:
