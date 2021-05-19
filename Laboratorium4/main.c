@@ -15,7 +15,7 @@
 
 typedef unsigned char byte;
 
-unsigned long encoder(unsigned long n, long length, unsigned long msg, long msglength); //funkcja asemblera
+unsigned long encoder(unsigned long n,unsigned long msglength); //funkcja asemblera
 
 int main()
 {
@@ -71,10 +71,25 @@ int main()
                 fread(currentRowPointer, 1, unpaddedRowSize, image);
                 currentRowPointer -= unpaddedRowSize;
             }
- 
+
+
             printf("Ilosc bajtow: %d \n", height*unpaddedRowSize);
             //Steganografia//
-            encoder(pixels,height*unpaddedRowSize, &message, strlen(message));
+            //10368 - poczatek bajtow pixeli //
+            long arr = 0;
+            for(int i=10368;i<height*unpaddedRowSize;i+=4) {
+                if(i-10368>strlen(message)) break;
+                arr = *(&pixels[i]);        //pierwszy bajt pixela
+                arr *= 256;             //rownowazne przesunieciu w HEX (00c9->c900)
+                arr += *(&pixels[i+1]); //drugi bajt pixela
+                arr *= 256;
+                arr += *(&pixels[i+2]); //trzeci bajt pixela
+                arr *= 256;
+                arr += *(&pixels[i+3]); //czwarty bajt pixela
+                encoder(arr, message[i-10368]);
+                printf("h");
+            }
+
 
             break;
         case 2:
