@@ -77,17 +77,19 @@ int main()
             //Steganografia//
             //10368 - poczatek bajtow pixeli //
             long arr = 0;
+            int j = 0; //iterator symboli tekstu
             for(int i=10368;i<height*unpaddedRowSize;i+=4) {
-                if(i-10368>strlen(message)) break;
+                if(j>strlen(message)-1) break;
                 arr = *(&pixels[i]);        //pierwszy bajt pixela
-                arr *= 256;             //rownowazne przesunieciu w HEX (00c9->c900)
-                arr += *(&pixels[i+1]); //drugi bajt pixela
+                arr *= 256;                 //rownowazne przesunieciu w HEX (00c9->c900)
+                arr += *(&pixels[i+1]);     //drugi bajt pixela
                 arr *= 256;
-                arr += *(&pixels[i+2]); //trzeci bajt pixela
+                arr += *(&pixels[i+2]);     //trzeci bajt pixela
                 arr *= 256;
-                arr += *(&pixels[i+3]); //czwarty bajt pixela
-                encoder(arr, message[i-10368]);
-                printf("h");
+                arr += *(&pixels[i+3]);     //czwarty bajt pixela
+                //encoder(arr, message[j]);
+                printf("%x j = %d",arr,j);
+                j++;
             }
 
 
