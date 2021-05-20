@@ -77,6 +77,7 @@ int main()
             //Steganografia//
             //10368 - poczatek bajtow pixeli //
             long arr = 0;
+            long encodedArr = 0;
             int j = 0; //iterator symboli tekstu
             for(int i=10368;i<height*unpaddedRowSize;i+=4) {
                 if(j>strlen(message)-1) break;
@@ -87,9 +88,9 @@ int main()
                 arr += *(&pixels[i+2]);     //trzeci bajt pixela
                 arr *= 256;
                 arr += *(&pixels[i+3]);     //czwarty bajt pixela
-                //encoder(arr, message[j]);
-                printf("%x j = %d",arr,j);
+                encodedArr = encoder(arr, message[j]);
                 j++;
+                printf("1 stage complete");
             }
 
 
