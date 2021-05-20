@@ -1,6 +1,6 @@
 .text
 
-.global encoder
+.globl encoder
 
 
 encoder:
@@ -38,7 +38,7 @@ mov %bx , %ax
 shl $16, %eax
 mov %dx , %ax			#mamy teraz zamienione czesci LOW i HIGH rejestru EAX
 
-#pierwszy bajt kodujemy
+#trzeci bajt kodujemy
 mov %al, %bl
 and $0b11111100, %bl	#zerujemy dwa najmlodze bity
 mov %cl, %dl
@@ -47,7 +47,7 @@ shr $4, %dl				#przesuwamy w prawo xx 11 xx xx -> xx xx xx 11
 add	%dl, %bl			#dodajemy na pozycje wyzerowanych bitow
 mov %bl, %al
 
-#drugi bajt kodujemy
+#czwarty bajt kodujemy
 mov %ah, %bl
 and $0b11111100, %bl	#zerujemy dwa najmlodze bity
 mov %cl, %dl
@@ -57,14 +57,14 @@ add	%dl, %bl			#dodajemy na pozycje wyzerowanych bitow
 mov %bl, %ah
 
 #Powracamy miejscami HIGH I LOW
-mov %ax, %cx			#zapisujemy zakodowane pierwsze 2 bajty
+mov %ax, %bx			#zapisujemy zakodowane pierwsze 2 bajty
 shr $16, %eax			#AA BB XX XX -> 00 00 AA BB
 mov %ax, %dx			#zapisujemy drugie 2 bajty
-mov %cx , %ax
+mov %bx , %ax
 shl $16, %eax
 mov %dx , %ax			#mamy teraz zamienione czesci LOW i HIGH rejestru EAX
 
-
 finish:
+mov %ebp, %esp
 pop %ebp
 ret

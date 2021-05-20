@@ -15,9 +15,56 @@
 
 typedef unsigned char byte;
 
-unsigned long encoder(unsigned long n,unsigned long msglength); //funkcja asemblera
+extern unsigned long encoder(unsigned long n,unsigned long msglength); //funkcja asemblera
 
-int main()
+void WriteFile(byte *pixels, int width, int height,int bytesPerPixel) {
+        FILE *outputFile = fopen("gg.bmp", "wb");
+        //*****HEADER************//
+        const char *BM = "BM";
+        fwrite(&BM[0], 1, 1, outputFile);
+        fwrite(&BM[1], 1, 1, outputFile);
+        int paddedRowSize = (int)(4 * (int)(((float)(width) / 4.0f) + 1))*bytesPerPixel;
+        int fileSize = paddedRowSize*height + HEADER_SIZE + INFO_HEADER_SIZE;
+        fwrite(&fileSize, 4, 1, outputFile);
+        int reserved = 0x0000;
+        fwrite(&reserved, 4, 1, outputFile);
+        int dataOffset = HEADER_SIZE+INFO_HEADER_SIZE;
+        fwrite(&dataOffset, 4, 1, outputFile);
+ 
+        //*******INFO*HEADER******//
+        int infoHeaderSize = INFO_HEADER_SIZE;
+        fwrite(&infoHeaderSize, 4, 1, outputFile);
+        fwrite(&width, 4, 1, outputFile);
+        fwrite(&height, 4, 1, outputFile);
+        short planes = 1; //always 1
+        fwrite(&planes, 2, 1, outputFile);
+        short bitsPerPixel = bytesPerPixel * 8;
+        fwrite(&bitsPerPixel, 2, 1, outputFile);
+        //write compression
+        int compression = NO_COMPRESION;
+        fwrite(&compression, 4, 1, outputFile);
+
+        int imageSize = width*height*bytesPerPixel;
+        fwrite(&imageSize, 4, 1, outputFile);
+        int resolutionX = 11811; //300 dpi
+        int resolutionY = 11811; //300 dpi
+        fwrite(&resolutionX, 4, 1, outputFile);
+        fwrite(&resolutionY, 4, 1, outputFile);
+        int colorsUsed = MAX_NUMBER_OF_COLORS;
+        fwrite(&colorsUsed, 4, 1, outputFile);
+        int importantColors = ALL_COLORS_REQUIRED;
+        fwrite(&importantColors, 4, 1, outputFile);
+        int i = 0;
+        int unpaddedRowSize = width*bytesPerPixel;
+        for ( i = 0; i < height; i++)
+        {
+            int pixelOffset = ((height - i) - 1)*unpaddedRowSize;
+            fwrite(&pixels[pixelOffset], 1, paddedRowSize, outputFile); 
+        }
+        fclose(outputFile);
+}
+
+int main(int argc, char *argv[])
 {
     char filelocation[100];
     char message[256];
@@ -44,6 +91,7 @@ int main()
             printf("Zdanie do kodowania -> %s\n", message);
 
             FILE *image = fopen(filelocation,"rb");
+
             int dataOffset;
             fseek(image, DATA_OFFSET_OFFSET, SEEK_SET);
             fread(&dataOffset, 4, 1, image);
@@ -71,27 +119,44 @@ int main()
                 fread(currentRowPointer, 1, unpaddedRowSize, image);
                 currentRowPointer -= unpaddedRowSize;
             }
-
+            fclose(image);
 
             printf("Ilosc bajtow: %d \n", height*unpaddedRowSize);
             //Steganografia//
-            //10368 - poczatek bajtow pixeli //
-            long arr = 0;
+            //10368 - poczatek bajtow pixeli sprawdzone w GDB//
+            unsigned long arr = 0;
             long encodedArr = 0;
-            int j = 0; //iterator symboli tekstu
+                        
+            int sizeMsg = strlen(message)-1;
+            int j = 1;
+
             for(int i=10368;i<height*unpaddedRowSize;i+=4) {
-                if(j>strlen(message)-1) break;
-                arr = *(&pixels[i]);        //pierwszy bajt pixela
+                if(j-1>sizeMsg) break;
+                
+                arr = pixels[i];        //pierwszy bajt pixela
                 arr *= 256;                 //rownowazne przesunieciu w HEX (00c9->c900)
-                arr += *(&pixels[i+1]);     //drugi bajt pixela
+                arr += pixels[i+1];     //drugi bajt pixela
                 arr *= 256;
-                arr += *(&pixels[i+2]);     //trzeci bajt pixela
+                arr += pixels[i+2];     //trzeci bajt pixela
                 arr *= 256;
-                arr += *(&pixels[i+3]);     //czwarty bajt pixela
-                encodedArr = encoder(arr, message[j]);
+                arr += pixels[i+3];     //czwarty bajt pixela
+                
+                encodedArr = encoder(arr, message[j-1]); //funkcja asemblera kodujaca jeden symbol na 4 bajtach pixeli
                 j++;
-                printf("1 stage complete");
-            }
+
+                pixels[i+3] = encodedArr%256;   //dzielenie przez 100 (256 HEX) rownowazne wzieciu dwoch ostatnich liter(1 bajt)
+                encodedArr = encodedArr>>8;     //przesuwamy do kolejnego bajtu
+                pixels[i+2]= encodedArr%256;   //kolejne dwie litery
+                encodedArr = encodedArr>>8;
+                pixels[i+1] = encodedArr%256;
+                encodedArr = encodedArr>>8;      
+                pixels[i] = encodedArr%256;
+
+                encodedArr = 0;
+            } 
+            
+
+            WriteFile(pixels,width,height,bytesPerPixel);
 
 
             break;
