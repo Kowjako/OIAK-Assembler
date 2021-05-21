@@ -141,8 +141,14 @@ int main(int argc, char *argv[])
                 arr *= 256;
                 arr += pixels[i+3];     //czwarty bajt pixela
                 
-                encodedArr = encoder(arr, message[j-1]); //funkcja asemblera kodujaca jeden symbol na 4 bajtach pixeli
-                j++;
+                if(i==10368) {
+                    encodedArr = encoder(arr, sizeMsg); //kodujemy dlugosc ciagu
+                    arr+=0;
+                }
+                else {
+                    encodedArr = encoder(arr, message[j-1]); //funkcja asemblera kodujaca jeden symbol na 4 bajtach pixeli
+                    j++;
+                }
 
                 pixels[i+3] = encodedArr%256;   //dzielenie przez 100 (256 HEX) rownowazne wzieciu dwoch ostatnich liter(1 bajt)
                 encodedArr = encodedArr>>8;     //przesuwamy do kolejnego bajtu
@@ -154,7 +160,6 @@ int main(int argc, char *argv[])
 
                 encodedArr = 0;
             } 
-            
 
             WriteFile(pixels,width,height,bytesPerPixel);
 
