@@ -19,7 +19,7 @@ extern unsigned long encoder(unsigned long n,unsigned long msglength); //funkcja
 extern unsigned long decoder(unsigned long n);
 
 void WriteFile(byte *pixels, int width, int height,int bytesPerPixel) {
-        FILE *outputFile = fopen("gg.bmp", "wb");
+        FILE *outputFile = fopen("encodedBMP.bmp", "wb");
         //*****HEADER************//
         const char *BM = "BM";
         fwrite(&BM[0], 1, 1, outputFile);
