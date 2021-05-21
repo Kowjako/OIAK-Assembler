@@ -1,6 +1,4 @@
 .data
-hellomsg: .ascii "Hello world!\n"
-msg_length = . - hellomsg
 
 .text
 .globl decoder
