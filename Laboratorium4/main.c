@@ -16,6 +16,7 @@
 typedef unsigned char byte;
 
 extern unsigned long encoder(unsigned long n,unsigned long msglength); //funkcja asemblera
+extern unsigned long decoder(unsigned long n);
 
 void WriteFile(byte *pixels, int width, int height,int bytesPerPixel) {
         FILE *outputFile = fopen("gg.bmp", "wb");
@@ -62,6 +63,100 @@ void WriteFile(byte *pixels, int width, int height,int bytesPerPixel) {
             fwrite(&pixels[pixelOffset], 1, paddedRowSize, outputFile); 
         }
         fclose(outputFile);
+}
+
+void showString(char* str) {
+    for(int j=1;j<strlen(str);j++)
+        printf("%c",str[j]);
+    printf("\n");
+}
+
+void DecodeFile(char* filename) {
+
+        int width, height;
+        FILE *image = fopen(filename,"rb");
+
+        int dataOffset;
+        fseek(image, DATA_OFFSET_OFFSET, SEEK_SET);
+        fread(&dataOffset, 4, 1, image);
+
+        fseek(image, WIDTH_OFFSET, SEEK_SET);
+        fread(&width, 4, 1, image);
+        fseek(image, HEIGHT_OFFSET, SEEK_SET);
+        fread(&height, 4, 1, image);
+
+        short bitsPerPixel;
+        fseek(image, BITS_PER_PIXEL_OFFSET, SEEK_SET);
+        fread(&bitsPerPixel, 2, 1, image);
+
+        int bytesPerPixel = ((int)bitsPerPixel) / 8;
+        int paddedRowSize = (int)(4 * (int)(((float)(width) / 4.0f) + 1))*bytesPerPixel;
+        int unpaddedRowSize = width*bytesPerPixel;
+
+        int totalSize = unpaddedRowSize*height;
+
+        byte* pixels = (byte*)malloc(totalSize);
+        byte* currentRowPointer = pixels + (height-1)*unpaddedRowSize;  //wskaznik na ostatni wiersz naszej tablicy pixeli
+        for(int i=0;i<height;i++) {
+            fseek(image, dataOffset+(i*paddedRowSize), SEEK_SET);
+            fread(currentRowPointer, 1, unpaddedRowSize, image);
+            currentRowPointer -= unpaddedRowSize;
+        }
+        fclose(image);
+
+        long arr = 0;
+        long decodedArr = 0;
+
+        arr = pixels[0];        //pierwszy bajt pixela
+        arr *= 256;                 //rownowazne przesunieciu w HEX (00c9->c900)
+        arr += pixels[1];       //drugi bajt pixela
+        arr *= 256;
+        arr += pixels[2];       //trzeci bajt pixela
+        arr *= 256;
+        arr += pixels[3];       //czwarty bajt pixela
+
+
+        long x = 0; 
+        short length = decoder(arr);
+        // Konwertowanie z postaci szesnastkowej //
+        int factLength = 1*length % 16;
+        length /= 16;
+        factLength += 2* length%16;
+        length /=16;
+        factLength += 4*length%16;
+        length /= 16;
+        factLength += 8*length%16;
+
+        long decoded = 0, j=0;
+        arr = 0;
+
+        char b[255];
+
+        for(int i = 10368; i< (factLength*4+10368) + 4;i+=4) {
+            arr = pixels[i];        //pierwszy bajt pixela
+            arr *= 256;                 //rownowazne przesunieciu w HEX (00c9->c900)
+            arr += pixels[i+1];     //drugi bajt pixela
+            arr *= 256;
+            arr += pixels[i+2];     //trzeci bajt pixela
+            arr *= 256;
+            arr += pixels[i+3];     //czwarty bajt pixela
+
+            decoded = decoder(arr);
+            long factSymbol = decoded % 256;
+            decoded /= 256;
+            factSymbol += 4* decoded % 256;
+            decoded /= 256;
+            factSymbol += 16 *decoded %256;
+            decoded /= 256;
+            factSymbol += 64*decoded%256;
+
+            j++;
+
+            b[j] = factSymbol;
+        }
+
+        showString(b);
+            
 }
 
 int main(int argc, char *argv[])
@@ -130,6 +225,25 @@ int main(int argc, char *argv[])
             int sizeMsg = strlen(message)-1;
             int j = 1;
 
+            arr = pixels[0];        //pierwszy bajt pixela
+            arr *= 256;                 //rownowazne przesunieciu w HEX (00c9->c900)
+            arr += pixels[1];       //drugi bajt pixela
+            arr *= 256;
+            arr += pixels[2];       //trzeci bajt pixela
+            arr *= 256;
+            arr += pixels[3];       //czwarty bajt pixela
+                
+            encodedArr = encoder(arr, sizeMsg); //kodujemy dlugosc ciagu
+            arr+=0;
+            //Kodowanie dlugosci//
+            pixels[3] = encodedArr%256;   //dzielenie przez 100 (256 HEX) rownowazne wzieciu dwoch ostatnich liter(1 bajt)
+            encodedArr = encodedArr>>8;     //przesuwamy do kolejnego bajtu
+            pixels[2]= encodedArr%256;   //kolejne dwie litery
+            encodedArr = encodedArr>>8;
+            pixels[1] = encodedArr%256;
+            encodedArr = encodedArr>>8;      
+            pixels[0] = encodedArr%256;
+
             for(int i=10368;i<height*unpaddedRowSize;i+=4) {
                 if(j-1>sizeMsg) break;
                 
@@ -141,14 +255,8 @@ int main(int argc, char *argv[])
                 arr *= 256;
                 arr += pixels[i+3];     //czwarty bajt pixela
                 
-                if(i==10368) {
-                    encodedArr = encoder(arr, sizeMsg); //kodujemy dlugosc ciagu
-                    arr+=0;
-                }
-                else {
-                    encodedArr = encoder(arr, message[j-1]); //funkcja asemblera kodujaca jeden symbol na 4 bajtach pixeli
-                    j++;
-                }
+                encodedArr = encoder(arr, message[j-1]); //funkcja asemblera kodujaca jeden symbol na 4 bajtach pixeli
+                j++;
 
                 pixels[i+3] = encodedArr%256;   //dzielenie przez 100 (256 HEX) rownowazne wzieciu dwoch ostatnich liter(1 bajt)
                 encodedArr = encodedArr>>8;     //przesuwamy do kolejnego bajtu
@@ -166,6 +274,9 @@ int main(int argc, char *argv[])
 
             break;
         case 2:
+            //Otwieramy plik do deszyfrowania
+            DecodeFile(filelocation);
+            
             
             break;
     }
