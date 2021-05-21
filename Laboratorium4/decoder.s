@@ -16,7 +16,7 @@ mov %bl, %al
 
 #drugi bajt dekodujemy
 mov %ah, %bl
-and $0b00000011, %bl	#zerujemy kolejne
+and $0b00000011, %bl	#zerujemy kolejne oprocz dwoch ostatnich
 mov %bl, %ah
 
 #Nastepne 2 bajty
@@ -29,12 +29,12 @@ mov %dx , %ax			#mamy teraz zamienione czesci LOW i HIGH rejestru EAX
 
 #trzeci bajt dekodujemy
 mov %al, %bl
-and $0b00000011, %bl	#zerujemy dwa najmlodze bity
+and $0b00000011, %bl	#zostawiamy dwa najmlodsze bity
 mov %bl, %al
 
 #czwarty bajt dekodujemy
 mov %ah, %bl
-and $0b00000011, %bl	#zerujemy dwa najmlodze bity
+and $0b00000011, %bl	#zostawiamy dwa najmlodsze bit
 mov %bl, %ah
 
 #Powracamy miejscami HIGH I LOW
