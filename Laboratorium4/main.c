@@ -19,7 +19,7 @@ extern unsigned long encoder(unsigned long n,unsigned long msglength); //funkcja
 extern unsigned long decoder(unsigned long n);
 
 void WriteFile(byte *pixels, int width, int height,int bytesPerPixel) {
-        FILE *outputFile = fopen("encodedBMP.bmp", "wb");
+        FILE *outputFile = fopen("gg.bmp", "wb");
         //*****HEADER************//
         const char *BM = "BM";
         fwrite(&BM[0], 1, 1, outputFile);
@@ -117,15 +117,15 @@ void DecodeFile(char* filename) {
 
 
         long x = 0; 
-        short length = decoder(arr);
+        long length = decoder(arr);
         // Konwertowanie z postaci szesnastkowej //
-        int factLength = 1*length % 16;
-        length /= 16;
-        factLength += 2* length%16;
-        length /=16;
-        factLength += 4*length%16;
-        length /= 16;
-        factLength += 8*length%16;
+        int factLength = 1*length % 256;
+        length /= 256;
+        factLength += 4* length%256;
+        length /= 256;
+        factLength += 16*length%256;
+        length /= 256;
+        factLength += 64*length%256;
 
         long decoded = 0, j=0;
         arr = 0;
