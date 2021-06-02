@@ -18,6 +18,8 @@ typedef unsigned char byte;
 extern unsigned long blackwhite(unsigned long n);  //filtr czarno-bialy
 extern unsigned long negative(unsigned long n);    //filtr negatyw
 
+extern unsigned long pencil(unsigned long n);    //filtr negatyw
+
 void WriteFile(byte *pixels, int width, int height,int bytesPerPixel) {
         FILE *outputFile = fopen("filtered.bmp", "wb");
         const char *BM = "BM";
@@ -75,9 +77,9 @@ int main(int argc, char *argv[])
     scanf("%s", filelocation);
 
     printf("Wybierz filtr: \n");
-    printf("1 - Czarno-biały\n");
+    printf("1 - Odcień szarego\n");
     printf("2 - Negatyw \n");
-    printf("3 - Jakis \n");
+    printf("3 - Czarno-biały \n");
     scanf("%d", &operation);
 
     printf("Potwierdzenie danych: \n");
@@ -170,7 +172,27 @@ int main(int argc, char *argv[])
             
             
         case 3:
-            
+            /* Nakladanie filtru olowek */
+            for(int i=0;i<height*unpaddedRowSize-3;i+=3) {     
+                /*Pobieramy pixel*/
+                arr = pixels[i];        //pierwszy bajt pixela - R
+                arr *= 256;                 
+                arr += pixels[i+1];     //drugi bajt pixela - G
+                arr *= 256;
+                arr += pixels[i+2];     //trzeci bajt pixela - B
+                
+                encodedArr = pencil(arr); //funkcja asm kodujaca pixel na czarnobialy
+
+                /*Nadpisujemy pixel*/
+                pixels[i+2]= encodedArr%256;   //zapisujemy nowy pixel RGB
+                encodedArr = encodedArr>>8;
+                pixels[i+1] = encodedArr%256;
+                encodedArr = encodedArr>>8;      
+                pixels[i] = encodedArr%256;
+
+                encodedArr = 0;
+            } 
+            WriteFile(pixels,width,height,bytesPerPixel);
             break;
     }
     return 0;
