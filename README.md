@@ -16,7 +16,7 @@ Program wczytuje dwie liczby od użytkownika, wykonuje operacje(+,/,-,*) oraz do
 3. *Mnożenie dużych liczb (200 znaków) 🕯️* (ASM)  
 Program mnoży dwie bardzo duże liczby(większe niż długość słowa) wpisane w konsole w sposób szesnastkowy, wykonuje mnożenie i wypisuje wynik w konsole też w sposób szesnastkowy.
   
-4. *Steaganografia* 🕶 (C + ASM)  
+4. *Steganografia* 🕶 (C + ASM)  
 Program szyfruje w wybranym pliku BMP wiadomość tekstową podaną w konsoli przez użytkownika we wskazanym pliku BMP oraz tworzy nowy plik z zaszyfrowaną wiadmością, po czym wybierając
 zaszyfrowany plik można odszyfrować wiadmość wpisaną do pliku.
   
