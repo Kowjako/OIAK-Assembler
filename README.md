@@ -31,8 +31,7 @@ Program nakłada filtry na wskazany plik BMP, realizowane filtry: czarno-biały,
 🏳️‍🌈 README  
 # Podsumowanie 
 Kurs był cięzki ale udało się zrobić wszystkie laboratoria, naprawdę na ten przedmiot spędziłem czasu więcej niż na jakikolwiek.  
-**Jeżeli moja praca wam pomogła podczas laboratoriów to możecie mnie odwdzięczyć:**  
-55 1160 2202 0000 0003 6077 6861💶
+**Mam nadzieję że moja praca wam w jakiś sposób pomogla :)**
 
 
 
